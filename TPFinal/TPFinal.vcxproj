@@ -64,6 +64,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Model.cpp" />
+    <ClCompile Include="modelssingleton.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="custom_vertex.h" />
+    <ClInclude Include="face.h" />
+    <ClInclude Include="Model.h" />
+    <ClInclude Include="modelssingleton.h" />
+    <ClInclude Include="point2.h" />
+    <ClInclude Include="point3.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -2,11 +2,7 @@
 ////////////////
 //	INCLUDES  //
 ////////////////
-#include <d3d9.h>
-#include <d3dx9.h>
-#include <d3dx9mesh.h>
-#include <d3dx9math.h>
-#include <memory.h>
+#include "modelssingleton.h"
 
 // memory leaks
 #include <crtdbg.h>
@@ -15,16 +11,6 @@
 #endif // _DEBUG 
 
 
-///////////////////////////
-//  DEFINE VERTEX STRUCT //
-///////////////////////////
-struct CUSTOM_VERTEX
-{
-	FLOAT x, y, z; // position
-	DWORD COLOR; // color
-	FLOAT u, v; // texture
-};
-#define D3DFVF_CUSTOM_VERTEX (D3DFVF_XYZ|D3DFVF_DIFFUSE|D3DFVF_TEX1)
 
 /////////////////
 //  VARIABLES  //
@@ -34,7 +20,7 @@ LPDIRECT3DDEVICE9 g_pd3dDevice = NULL;
 LPDIRECT3DVERTEXBUFFER9 g_pVB = NULL;
 LPDIRECT3DTEXTURE9 g_pTexture = NULL;
 FLOAT texture_size = 1.0f;
-
+const int vertexCountInBuffer = 3000;
 
 //////////////////////
 //  INIT DIRECT 3D  //
@@ -91,23 +77,50 @@ void OnWindowClosed()
 }
 
 
+
 /////////////////////////
 //  INIT VERTEX BUFFER //
 /////////////////////////
 HRESULT InitVertexBuffer()
 {
-	int taille = 256;
 	// init vertex
-	CUSTOM_VERTEX sommets[] = 
+	CUSTOM_VERTEX sommets[vertexCountInBuffer];
+	int indexOfVertex = 0;
+
+	std::list<Model*>::iterator it1 = ModelsSingleton::Instance()._models.begin();
+	for( it1 = ModelsSingleton::Instance()._models.begin();
+		 it1 != ModelsSingleton::Instance()._models.end();
+		 it1++)
 	{
-		{0.0f, 0.5f , 0.0f, 0xffff8000, texture_size/2, texture_size}, 
-		{-0.5f, 0.0f , 0.5f, 0xffff8000, 0.0f, 0.0f},
-		{0.5f, 0.0f , -0.5f, 0xffff8000, 0.0f, texture_size},
+
+		std::map<int, Face*>::iterator it2 = (*it1)->_faces.begin();
 		
-		{0.0f, 0.5f , 0.0f, 0xffff0080, texture_size/2, texture_size},
-		{-0.5f, 0.0f , -0.5f, 0xffff0080, 0.0f, 0.0f},
-		{0.5f, 0.0f , 0.5f, 0xffff0080, 0.0f, texture_size}
-	};
+		for( it2; it2 != (*it1)->_faces.end(); it2++)
+		{
+			if( indexOfVertex >= vertexCountInBuffer )
+				return E_FAIL;
+			sommets[indexOfVertex] = (*it2).second->v1;
+			sommets[indexOfVertex].x += (*it1)->_location.x;
+			sommets[indexOfVertex].y += (*it1)->_location.y;
+			sommets[indexOfVertex].z += (*it1)->_location.z;
+			indexOfVertex++;
+			if( indexOfVertex >= vertexCountInBuffer )
+				return E_FAIL;
+			sommets[indexOfVertex] = (*it2).second->v2;
+			sommets[indexOfVertex].x += (*it1)->_location.x;
+			sommets[indexOfVertex].y += (*it1)->_location.y;
+			sommets[indexOfVertex].z += (*it1)->_location.z;
+			indexOfVertex++;
+			if( indexOfVertex >= vertexCountInBuffer )
+				return E_FAIL;
+			sommets[indexOfVertex] = (*it2).second->v3;
+			sommets[indexOfVertex].x += (*it1)->_location.x;
+			sommets[indexOfVertex].y += (*it1)->_location.y;
+			sommets[indexOfVertex].z += (*it1)->_location.z;
+			indexOfVertex++;
+		}
+
+	}
 
 	// create vertex buffer
 	if( FAILED( g_pd3dDevice->CreateVertexBuffer(
@@ -143,11 +156,11 @@ HRESULT InitVertexBuffer()
 ////////////////////
 //  INIT TEXTURE  //
 ////////////////////
-HRESULT InitTexture()
+HRESULT InitTexture(std::string texturepath)
 {
 	
 	// load texture from file
-	if (FAILED(D3DXCreateTextureFromFile(g_pd3dDevice, ".\\Resources\\wheat_stage_7.png", &g_pTexture)))
+	if (FAILED(D3DXCreateTextureFromFile(g_pd3dDevice, texturepath.c_str(), &g_pTexture)))
 	{
 		MessageBox(NULL, "Fichier de texture non trouvé !!",  "MON APPLI DE TEXTURE", MB_OK);
 		return E_FAIL;
@@ -159,6 +172,8 @@ HRESULT InitTexture()
 	g_pd3dDevice->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
 	g_pd3dDevice->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
 	g_pd3dDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
+
+	return S_OK;
 
 }
 
@@ -173,26 +188,27 @@ void MatrixSettings()
 	// get the time 
 	UINT time = timeGetTime() % 1000;
 
-	FLOAT angle_radians = time * (2.0f*D3DX_PI)/1000.0f;
+	//FLOAT angle_radians = time * (2.0f*D3DX_PI)/1000.0f;
+	FLOAT angle_radians = 0;
 	D3DXMatrixRotationY(&worldMatrix, angle_radians);
 	g_pd3dDevice->SetTransform(D3DTS_WORLD, &worldMatrix);
 
 	D3DXMATRIX viewMatrix;
 	
-	D3DXVECTOR3 eyeVector(1.25f, 1.25f, -1.25f);
+	/*D3DXVECTOR3 eyeVector(1.25f, 1.25f, -1.25f);
 	D3DXVECTOR3 targetVector(0.0f, 0.0f, 0.0f);
-	D3DXVECTOR3 upVector(-0.25f, 0.25f, 0.25f);
+	D3DXVECTOR3 upVector(-0.25f, 0.25f, 0.25f);*/
 	
-	/*D3DXVECTOR3 eyeVector(0.0f, 0.0f, -2.0f);
+	D3DXVECTOR3 eyeVector(0.0f, 2.0f, -4.0f);
 	D3DXVECTOR3 targetVector(0.0f, 0.0f, 0.0f);
-	D3DXVECTOR3 upVector(0.0f, 1.0f, 0.0f);*/
+	D3DXVECTOR3 upVector(0.0f, 1.0f, 0.0f);
 	
 	D3DXMatrixLookAtLH(&viewMatrix, &eyeVector, &targetVector, &upVector);
 	g_pd3dDevice->SetTransform(D3DTS_VIEW, &viewMatrix);
 
 	D3DXMATRIX projectionMatrix;
 	int fov_degree = 135;
-	float fovy_radian = fov_degree/180.0*D3DX_PI;
+	float fovy_radian = fov_degree/180.0f*D3DX_PI;
 	float aspect = 1.0f;
 	float zn = 0.1f;
 	float zf = 100.0f;
@@ -202,16 +218,27 @@ void MatrixSettings()
 
 
 //////////////
+//  UPDATE  //
+//////////////
+// called at each frame
+void Update()
+{
+	std::list<Model*>::iterator it1 = ModelsSingleton::Instance()._models.begin();
+	(*it1)->Translate(0, 0, -0.05);
+}
+
+//////////////
 //  RENDER  //
 //////////////
 void Render()
 {
 
+	// UPDATE //
+	Update();
 
 	////
 	//  Init Vertex Buffer and Textures for rendering
 	InitVertexBuffer();
-	InitTexture();
 
 	//// clear the back buffer
 	g_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(200, 200, 255), 1.0f, 0);
@@ -227,8 +254,21 @@ void Render()
 	g_pd3dDevice->SetStreamSource(0, g_pVB, 0, sizeof(CUSTOM_VERTEX));
 		// inform the device of vertex type used
 	g_pd3dDevice->SetFVF( D3DFVF_CUSTOM_VERTEX );
+		
 		// draw vertex of vertexbuffer
-	g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 0, 2);
+	int numberOfVertexDrawn = 0;
+
+	std::list<Model*>::iterator it1 = ModelsSingleton::Instance()._models.begin();
+	for( it1 = ModelsSingleton::Instance()._models.begin();
+		 it1 != ModelsSingleton::Instance()._models.end();
+		 it1++)
+	{
+		InitTexture((*it1)->_texture);
+		g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLELIST, numberOfVertexDrawn, (*it1)->nbFace);
+		numberOfVertexDrawn += (*it1)->nbFace * 3;
+	}
+	
+	
 
 
 	// end render
@@ -323,6 +363,8 @@ int WINAPI WinMain(
 	////
 	//  Init Direct 3D
 	InitDirect3D(hWnd);
+
+
 
 	// show
 	ShowWindow(hWnd, nCmdShow);
