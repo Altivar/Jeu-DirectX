@@ -1,6 +1,12 @@
 #include "Model.h"
 #include <fstream>
 
+// memory leaks
+#include <crtdbg.h>
+#ifdef _DEBUG 
+  #define new new( _CLIENT_BLOCK, __FILE__, __LINE__)
+#endif // _DEBUG
+
 Model::Model(void)
 {
 	SetLocation(0,0,0);
@@ -12,7 +18,11 @@ Model::Model(const Model& model)
 	std::map<int, Face*>::const_iterator it1 = model._faces.begin();
 	for( it1; it1 != model._faces.end(); it1++ )
 	{
-		Face* newFace = new Face(*it1->second);
+		Face* newFace = new Face();
+		for(int i = 0; i < (*it1).second->_nbVertex; i++)
+		{
+			newFace->AddVertex((*it1).second->_vertexTable[i]);
+		}
 		this->_faces[it1->first] = newFace;
 		this->nbFace++;
 	}
@@ -244,7 +254,43 @@ bool Model::LoadData()
             fin.get(input);
             if(input == ' ')
             {
-				int v1, t1;
+				
+				int gh = 45;
+				// create the face
+				Face* face = new Face();
+				// check and create all the vertex of the face
+				while(true)
+				{
+					int v, t;
+					fin >> v >> input >> t;
+
+					CUSTOM_VERTEX vertex;
+					vertex.x = _vertex[v].x;
+					vertex.y = _vertex[v].y;
+					vertex.z = -_vertex[v].z;
+					vertex.COLOR = 0xffff00ff;
+					vertex.u = _textures[t].x;
+					vertex.v = _textures[t].y;
+					face->AddVertex(vertex);
+
+					while(input != ' ' && input != '\n')
+						fin.get(input);
+					if(input == '\n')
+						break;
+				}
+
+				if(face->_nbVertex == 0)
+				{
+					delete face;
+				}
+				else
+				{
+					gh = 2;
+				}
+				
+				
+				
+				/*int v1, t1;
 				int v2, t2;
 				int v3, t3;
 				
@@ -289,6 +335,7 @@ bool Model::LoadData()
 				face->v1 = vert1;
 				face->v2 = vert2;
 				face->v3 = vert3;
+				face->_nbVertex = 3;*/
 
 				_faces[indexFace] = face;
 				indexFace++;

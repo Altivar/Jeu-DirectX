@@ -97,27 +97,19 @@ HRESULT InitVertexBuffer()
 		
 		for( it2; it2 != (*it1)->_faces.end(); it2++)
 		{
-			if( indexOfVertex >= vertexCountInBuffer )
+			
+			for(int i = 0; i < (*it2).second->_nbVertex; i++)
+			{
+				if( indexOfVertex >= vertexCountInBuffer )
 				return E_FAIL;
-			sommets[indexOfVertex] = (*it2).second->v1;
-			sommets[indexOfVertex].x += (*it1)->_location.x;
-			sommets[indexOfVertex].y += (*it1)->_location.y;
-			sommets[indexOfVertex].z += (*it1)->_location.z;
-			indexOfVertex++;
-			if( indexOfVertex >= vertexCountInBuffer )
-				return E_FAIL;
-			sommets[indexOfVertex] = (*it2).second->v2;
-			sommets[indexOfVertex].x += (*it1)->_location.x;
-			sommets[indexOfVertex].y += (*it1)->_location.y;
-			sommets[indexOfVertex].z += (*it1)->_location.z;
-			indexOfVertex++;
-			if( indexOfVertex >= vertexCountInBuffer )
-				return E_FAIL;
-			sommets[indexOfVertex] = (*it2).second->v3;
-			sommets[indexOfVertex].x += (*it1)->_location.x;
-			sommets[indexOfVertex].y += (*it1)->_location.y;
-			sommets[indexOfVertex].z += (*it1)->_location.z;
-			indexOfVertex++;
+				sommets[indexOfVertex] = (*it2).second->_vertexTable[i];
+				sommets[indexOfVertex].x += (*it1)->_location.x;
+				sommets[indexOfVertex].y += (*it1)->_location.y;
+				sommets[indexOfVertex].z += (*it1)->_location.z;
+				indexOfVertex++;
+			}
+			
+			
 		}
 
 	}
@@ -162,7 +154,7 @@ HRESULT InitTexture(std::string texturepath)
 	// load texture from file
 	if (FAILED(D3DXCreateTextureFromFile(g_pd3dDevice, texturepath.c_str(), &g_pTexture)))
 	{
-		MessageBox(NULL, "Fichier de texture non trouvé !!",  "MON APPLI DE TEXTURE", MB_OK);
+		g_pd3dDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_DISABLE);
 		return E_FAIL;
 	}
 
@@ -220,11 +212,14 @@ void MatrixSettings()
 //////////////
 //  UPDATE  //
 //////////////
-// called at each frame
+// called at each frame before Render
 void Update()
 {
 	std::list<Model*>::iterator it1 = ModelsSingleton::Instance()._models.begin();
-	(*it1)->Translate(0, 0, -0.05);
+	for(it1; it1 != ModelsSingleton::Instance()._models.end(); it1++)
+	{
+		(*it1)->Translate(0, 0, -0.01f);
+	}
 }
 
 //////////////
@@ -263,9 +258,17 @@ void Render()
 		 it1 != ModelsSingleton::Instance()._models.end();
 		 it1++)
 	{
+
 		InitTexture((*it1)->_texture);
-		g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLELIST, numberOfVertexDrawn, (*it1)->nbFace);
-		numberOfVertexDrawn += (*it1)->nbFace * 3;
+		
+		std::map<int, Face*>::iterator it2 = (*it1)->_faces.begin();
+		
+		for( it2; it2 != (*it1)->_faces.end(); it2++)
+		{
+			g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, numberOfVertexDrawn, (*it2).second->_nbVertex - 2 );
+			numberOfVertexDrawn += (*it2).second->_nbVertex;
+		}
+
 	}
 	
 	
