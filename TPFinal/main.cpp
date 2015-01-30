@@ -3,6 +3,7 @@
 //	INCLUDES  //
 ////////////////
 #include "modelssingleton.h"
+#include <math.h>
 
 // memory leaks
 #include <crtdbg.h>
@@ -103,9 +104,46 @@ HRESULT InitVertexBuffer()
 				if( indexOfVertex >= vertexCountInBuffer )
 				return E_FAIL;
 				sommets[indexOfVertex] = (*it2).second->_vertexTable[i];
+				
+				float x, y, z;
+
+				// rotate x
+				float cos_X = cos( (*it1)->_rotation.x );
+				float sin_X = sin( (*it1)->_rotation.x );
+				y = sommets[indexOfVertex].y;
+				z = sommets[indexOfVertex].z;
+				sommets[indexOfVertex].y = y * cos_X - z * sin_X;
+				sommets[indexOfVertex].z = z * cos_X + y * sin_X;
+
+				// rotate y
+				float cos_Y = cos( (*it1)->_rotation.y );
+				float sin_Y = sin( (*it1)->_rotation.y );
+				x = sommets[indexOfVertex].x;
+				z = sommets[indexOfVertex].z;
+				sommets[indexOfVertex].z = z * cos_Y - x * sin_Y;
+				sommets[indexOfVertex].x = x * cos_Y + z * sin_Y;
+
+				// rotate z
+				float cos_Z = cos( (*it1)->_rotation.z );
+				float sin_Z = sin( (*it1)->_rotation.z );
+				x = sommets[indexOfVertex].x;
+				y = sommets[indexOfVertex].y;
+				sommets[indexOfVertex].x = x * cos_Z - y * sin_Z;
+				sommets[indexOfVertex].y = y * cos_Z + x * sin_Z;
+
+
+				// scale
+				sommets[indexOfVertex].x *= (*it1)->_scale;
+				sommets[indexOfVertex].y *= (*it1)->_scale;
+				sommets[indexOfVertex].z *= (*it1)->_scale;
+
+				// position
 				sommets[indexOfVertex].x += (*it1)->_location.x;
 				sommets[indexOfVertex].y += (*it1)->_location.y;
 				sommets[indexOfVertex].z += (*it1)->_location.z;
+				
+				
+
 				indexOfVertex++;
 			}
 			
@@ -191,9 +229,9 @@ void MatrixSettings()
 	D3DXVECTOR3 targetVector(0.0f, 0.0f, 0.0f);
 	D3DXVECTOR3 upVector(-0.25f, 0.25f, 0.25f);*/
 	
-	D3DXVECTOR3 eyeVector(0.0f, 2.0f, -4.0f);
+	D3DXVECTOR3 eyeVector(0.0f, 4.0f, -4.0f);
 	D3DXVECTOR3 targetVector(0.0f, 0.0f, 0.0f);
-	D3DXVECTOR3 upVector(0.0f, 1.0f, 0.0f);
+	D3DXVECTOR3 upVector(0.0f, 1.0f, 1.0f);
 	
 	D3DXMatrixLookAtLH(&viewMatrix, &eyeVector, &targetVector, &upVector);
 	g_pd3dDevice->SetTransform(D3DTS_VIEW, &viewMatrix);
@@ -218,7 +256,9 @@ void Update()
 	std::list<Model*>::iterator it1 = ModelsSingleton::Instance()._models.begin();
 	for(it1; it1 != ModelsSingleton::Instance()._models.end(); it1++)
 	{
-		(*it1)->Translate(0, 0, -0.01f);
+		//(*it1)->Translate(0, 0, -0.01f);
+		//(*it1)->Scale(0.99f);
+		(*it1)->Rotate(0.01, 0.01, 0.01);
 	}
 }
 

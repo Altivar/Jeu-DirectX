@@ -10,6 +10,8 @@
 Model::Model(void)
 {
 	SetLocation(0,0,0);
+	SetRotation(0,0,0);
+	SetScale(1);
 }
 
 Model::Model(const Model& model)
@@ -47,6 +49,8 @@ Model::Model(const Model& model)
 	this->_name = model._name;
 	
 	this->_location = model._location;
+	this->_rotation = model._rotation;
+	this->_scale = model._scale;
 }
 
 Model::~Model(void)
@@ -120,6 +124,50 @@ void Model::Translate(float x, float y, float z)
 	_location.x += x;
 	_location.y += y;
 	_location.z += z;
+}
+
+////////////////
+//  ROTATION  //
+////////////////
+void Model::SetRotation(Point3 axis, float angle)
+{
+	this->_rotation.x = axis.x * angle;
+	this->_rotation.y = axis.y * angle;
+	this->_rotation.z = axis.z * angle;
+}
+
+void Model::SetRotation(float xAngle, float yAngle, float zAngle)
+{
+	this->_rotation.x = xAngle;
+	this->_rotation.y = yAngle;
+	this->_rotation.z = zAngle;
+}
+
+void Model::Rotate(Point3 axis, float angle)
+{
+	this->_rotation.x += axis.x * angle;
+	this->_rotation.y += axis.y * angle;
+	this->_rotation.z += axis.z * angle;
+}
+
+void Model::Rotate(float xAngle, float yAngle, float zAngle)
+{
+	this->_rotation.x += xAngle;
+	this->_rotation.y += yAngle;
+	this->_rotation.z += zAngle;
+}
+
+/////////////
+//  SCALE  //
+/////////////
+void Model::SetScale(float scale)
+{
+	this->_scale = scale;
+}
+
+void Model::Scale(float factor)
+{
+	this->_scale *= factor;
 }
 
 ///////////////
