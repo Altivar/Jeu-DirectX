@@ -45,8 +45,10 @@ GameManager::GameManager(void)
 	player->Translate(-2, -1, 0);
 	_models.push_back(player);
 
-	//GameStates
+	//init GameStates
 	_gameStates.insert(std::pair<std::string, GameState*>("PlayState", (GameState*)new PlayState()));
+
+	//Start GameState
 	LoadGameState("PlayState");
 }
 
@@ -57,7 +59,10 @@ void GameManager::Update()
 
 void GameManager::LoadGameState(string stateStr)
 {
+	if(_currentGameState != NULL)
+		_currentGameState->End();
 	_currentGameState = _gameStates.at(stateStr);
+	_currentGameState->Start();
 }
 
 
