@@ -1,4 +1,4 @@
-#pragma once
+/*#pragma once
 
 #include "model.h"
 #include <list>
@@ -21,3 +21,4 @@ private:
 	
 };
 
+*/

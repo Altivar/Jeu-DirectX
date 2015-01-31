@@ -1,4 +1,7 @@
-/*#include "modelssingleton.h"
+#include "GameManager.h"
+
+//States include
+#include "PlayState.h"
 
 // memory leaks
 #include <crtdbg.h>
@@ -6,10 +9,11 @@
   #define new new( _CLIENT_BLOCK, __FILE__, __LINE__)
 #endif // _DEBUG
 
-ModelsSingleton ModelsSingleton::_instance = ModelsSingleton();
+GameManager GameManager::_instance = GameManager();
 
-ModelsSingleton::ModelsSingleton(void)
+GameManager::GameManager(void)
 {
+	//Models
 	_models.clear();
 	
 	_modelCube.InitModel( ".\\Resources\\cube.obj" , ".\\Resources\\diamond_ore.png" );
@@ -36,15 +40,28 @@ ModelsSingleton::ModelsSingleton(void)
 	m3->Translate(0, 0, 1);
 	_models.push_back(m3);
 
-	Model* m4 = new Model(_modelThing);
-	m4->SetTexture(".\\Resources\\redstone_block.png");
-	m4->Translate(-1, -1, 0);
-	_models.push_back(m4);
+	player = new Model(_modelThing);
+	player->SetTexture(".\\Resources\\redstone_block.png");
+	player->Translate(-2, -1, 0);
+	_models.push_back(player);
 
+	//GameStates
+	_gameStates.insert(std::pair<std::string, GameState*>("PlayState", (GameState*)new PlayState()));
+	LoadGameState("PlayState");
+}
+
+void GameManager::Update()
+{
+	_currentGameState->Update();
+}
+
+void GameManager::LoadGameState(string stateStr)
+{
+	_currentGameState = _gameStates.at(stateStr);
 }
 
 
-ModelsSingleton::~ModelsSingleton(void)
+GameManager::~GameManager(void)
 {
 	std::list<Model*>::iterator it = _models.begin();
 	while (it != _models.end())
@@ -52,10 +69,10 @@ ModelsSingleton::~ModelsSingleton(void)
 		delete (*it);
 		it = _models.erase(it);
 	}
+
 }
 
-ModelsSingleton& ModelsSingleton::Instance()
+GameManager& GameManager::Instance()
 {
 	return _instance;
 }
-*/

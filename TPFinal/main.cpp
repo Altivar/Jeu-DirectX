@@ -2,8 +2,10 @@
 ////////////////
 //	INCLUDES  //
 ////////////////
-#include "modelssingleton.h"
+//#include "modelssingleton.h"
+#include "GameManager.h"
 #include <math.h>
+#include <conio.h>
 
 // memory leaks
 #include <crtdbg.h>
@@ -88,9 +90,9 @@ HRESULT InitVertexBuffer()
 	CUSTOM_VERTEX sommets[vertexCountInBuffer];
 	int indexOfVertex = 0;
 
-	std::list<Model*>::iterator it1 = ModelsSingleton::Instance()._models.begin();
-	for( it1 = ModelsSingleton::Instance()._models.begin();
-		 it1 != ModelsSingleton::Instance()._models.end();
+	std::list<Model*>::iterator it1 = GameManager::Instance()._models.begin();
+	for( it1 = GameManager::Instance()._models.begin();
+		 it1 != GameManager::Instance()._models.end();
 		 it1++)
 	{
 
@@ -229,7 +231,7 @@ void MatrixSettings()
 	D3DXVECTOR3 targetVector(0.0f, 0.0f, 0.0f);
 	D3DXVECTOR3 upVector(-0.25f, 0.25f, 0.25f);*/
 	
-	D3DXVECTOR3 eyeVector(0.0f, 4.0f, -4.0f);
+	D3DXVECTOR3 eyeVector(0.0f, 0.0f, -10.0f);
 	D3DXVECTOR3 targetVector(0.0f, 0.0f, 0.0f);
 	D3DXVECTOR3 upVector(0.0f, 1.0f, 1.0f);
 	
@@ -237,7 +239,7 @@ void MatrixSettings()
 	g_pd3dDevice->SetTransform(D3DTS_VIEW, &viewMatrix);
 
 	D3DXMATRIX projectionMatrix;
-	int fov_degree = 135;
+	int fov_degree = 75;
 	float fovy_radian = fov_degree/180.0f*D3DX_PI;
 	float aspect = 1.0f;
 	float zn = 0.1f;
@@ -253,13 +255,7 @@ void MatrixSettings()
 // called at each frame before Render
 void Update()
 {
-	std::list<Model*>::iterator it1 = ModelsSingleton::Instance()._models.begin();
-	for(it1; it1 != ModelsSingleton::Instance()._models.end(); it1++)
-	{
-		//(*it1)->Translate(0, 0, -0.01f);
-		//(*it1)->Scale(0.99f);
-		(*it1)->Rotate(0.01, 0.01, 0.01);
-	}
+	GameManager::Instance().Update();
 }
 
 //////////////
@@ -293,9 +289,9 @@ void Render()
 		// draw vertex of vertexbuffer
 	int numberOfVertexDrawn = 0;
 
-	std::list<Model*>::iterator it1 = ModelsSingleton::Instance()._models.begin();
-	for( it1 = ModelsSingleton::Instance()._models.begin();
-		 it1 != ModelsSingleton::Instance()._models.end();
+	std::list<Model*>::iterator it1 = GameManager::Instance()._models.begin();
+	for( it1 = GameManager::Instance()._models.begin();
+		 it1 != GameManager::Instance()._models.end();
 		 it1++)
 	{
 
