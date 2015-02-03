@@ -65,9 +65,9 @@
   <ItemGroup>
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="GameState.cpp" />
+    <ClCompile Include="LevelGenerator.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Model.cpp" />
-    <ClCompile Include="modelssingleton.cpp" />
     <ClCompile Include="PlayState.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -75,8 +75,8 @@
     <ClInclude Include="face.h" />
     <ClInclude Include="GameManager.h" />
     <ClInclude Include="GameState.h" />
+    <ClInclude Include="LevelGenerator.h" />
     <ClInclude Include="Model.h" />
-    <ClInclude Include="modelssingleton.h" />
     <ClInclude Include="PlayState.h" />
     <ClInclude Include="point2.h" />
     <ClInclude Include="point3.h" />

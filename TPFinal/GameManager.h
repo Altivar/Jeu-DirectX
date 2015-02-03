@@ -1,7 +1,9 @@
 #pragma once
 
 #include "GameState.h"
+#include "LevelGenerator.h"
 #include "model.h"
+#include "point3.h"
 #include <string>
 #include <list>
 #include <map>
@@ -34,6 +36,5 @@ private:
 	~GameManager(void);
 
 	static GameManager _instance;
-	
 };
 

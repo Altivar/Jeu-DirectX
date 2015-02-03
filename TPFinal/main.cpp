@@ -24,6 +24,7 @@ LPDIRECT3DVERTEXBUFFER9 g_pVB = NULL;
 LPDIRECT3DTEXTURE9 g_pTexture = NULL;
 FLOAT texture_size = 1.0f;
 const int vertexCountInBuffer = 3000;
+Point3 CameraOffset = Point3(0.0f, 4.0f, -10.0f);
 
 //////////////////////
 //  INIT DIRECT 3D  //
@@ -231,8 +232,9 @@ void MatrixSettings()
 	D3DXVECTOR3 targetVector(0.0f, 0.0f, 0.0f);
 	D3DXVECTOR3 upVector(-0.25f, 0.25f, 0.25f);*/
 	
-	D3DXVECTOR3 eyeVector(0.0f, 0.0f, -10.0f);
-	D3DXVECTOR3 targetVector(0.0f, 0.0f, 0.0f);
+	Point3 playerPos = GameManager::Instance().player->_location;
+	D3DXVECTOR3 eyeVector(playerPos.x + CameraOffset.x, playerPos.y + CameraOffset.y, playerPos.z + CameraOffset.z);
+	D3DXVECTOR3 targetVector(eyeVector.x, eyeVector.y, eyeVector.z + 1.0f);
 	D3DXVECTOR3 upVector(0.0f, 1.0f, 1.0f);
 	
 	D3DXMatrixLookAtLH(&viewMatrix, &eyeVector, &targetVector, &upVector);

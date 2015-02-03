@@ -13,6 +13,8 @@ GameManager GameManager::_instance = GameManager();
 
 GameManager::GameManager(void)
 {
+	LevelGenerator::Instance()->Start();
+
 	//Models
 	_models.clear();
 	
@@ -34,6 +36,7 @@ GameManager::GameManager(void)
 	m2->SetTexture(".\\Resources\\diamond_ore.png");
 	m2->Translate(0, 3, 0);
 	_models.push_back(m2);
+	LevelGenerator::Instance()->AddPlateformToList(m2);
 
 	Model* m3 = new Model(_modelTorus);
 	m3->SetTexture(".\\Resources\\stonebrick_mossy.png");
